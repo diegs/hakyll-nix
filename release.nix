@@ -8,10 +8,9 @@ let
 
   haskellPackages = pkgs.haskell.packages.${compiler}.override {
     overrides = new: old: {
-      # time-compat = pkgs.haskell.lib.dontCheck old.time-compat;
       hakyll =
-        pipe (new.callPackage ./hakyll.nix { }) [
-          (flip appendPatch ./hakyll.patch)
+        pipe (new.callPackage ./nix/hakyll.nix { }) [
+          (flip appendPatch ./nix/hakyll.patch)
           (flip appendConfigureFlags [ "-f" "watchServer" "-f" "previewServer" ])
         ];
         hakyll-nix = new.callCabal2nix "hakyll-nix" ./. { };
@@ -26,13 +25,12 @@ in
     shell = haskellPackages.shellFor {
       packages = p: with p; [ project ];
       buildInputs = with haskellPackages; [
-        pkgs.cabal-install
-        # pkgs.ghcid
-        # pkgs.hlint
+        cabal-install
+        ghcid
+        hlint
         (all-hies.selection { selector = p: { ${compiler} = builtins.getAttr compiler p;}; })
-        # pkgs.ormolu
-        # pkgs.niv
-        # hakyll
+        ormolu
+        niv.niv
       ];
       withHoogle = true;
     };
